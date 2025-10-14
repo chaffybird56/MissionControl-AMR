@@ -1,0 +1,132 @@
+services:
+  # ROS2 Core System
+  ros2-core:
+    build:
+      context: ../ros2
+      dockerfile: docker/Dockerfile
+    container_name: ros2-amr-core
+    environment:
+      - ROS_DISTRO=humble
+      - RMW_IMPLEMENTATION=rmw_fastrtps_cpp
+      - USE_WEBOTS=true
+    volumes:
+      - ../ros2/packages:/ros2_ws/src:ro
+      - ../ros2/overlays:/ros2_ws/overlays:ro
+      - ./bags:/bags
+      - ./logs:/logs
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+    network_mode: host
+    privileged: true
+    stdin_open: true
+    tty: true
+    depends_on:
+      - webots
+    restart: unless-stopped
+    command: >
+      bash -c "
+        source /opt/ros/humble/setup.bash &&
+        source /ros2_ws/install/setup.bash &&
+        ros2 launch amr_bringup amr_bringup.launch.py use_webots:=true
+      "
+
+  # Webots Simulation
+  webots:
+    image: cyberbotics/webots:latest
+    container_name: ros2-amr-webots
+    environment:
+      - DISPLAY=${DISPLAY:-:0}
+      - QT_X11_NO_MITSHM=1
+      - WEBOTS_DISABLE_SAVE_SCREENSHOT=1
+    volumes:
+      - ../sim:/sim:ro
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+    network_mode: host
+    privileged: true
+    stdin_open: true
+    tty: true
+    restart: unless-stopped
+    command: >
+      bash -c "
+        cd /sim/worlds &&
+        webots --stdout --stderr --batch --mode=pause showfloor.wbt
+      "
+
+  # FastAPI Server
+  server:
+    build:
+      context: ../server
+      dockerfile: Dockerfile
+    container_name: ros2-amr-server
+    environment:
+      - HOST=0.0.0.0
+      - PORT=8000
+      - DEBUG=false
+    ports:
+      - "8000:8000"
+    volumes:
+      - ../server:/app:ro
+    depends_on:
+      - ros2-core
+    restart: unless-stopped
+    command: ["python", "app.py"]
+
+  # Next.js Dashboard
+  dashboard:
+    build:
+      context: ../dashboard
+      dockerfile: Dockerfile
+    container_name: ros2-amr-dashboard
+    environment:
+      - NODE_ENV=production
+      - API_URL=http://localhost:8000
+      - WS_URL=ws://localhost:8000/ws
+    ports:
+      - "3001:3000"
+    volumes:
+      - ../dashboard:/app:ro
+      - /app/node_modules
+      - /app/.next
+    depends_on:
+      - server
+    restart: unless-stopped
+    command: ["npm", "run", "dev"]
+
+  # Metrics Exporter (Optional)
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: ros2-amr-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--web.enable-lifecycle'
+    restart: unless-stopped
+    profiles:
+      - monitoring
+
+  # Grafana Dashboard (Optional)
+  grafana:
+    image: grafana/grafana:latest
+    container_name: ros2-amr-grafana
+    ports:
+      - "3001:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - grafana-storage:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+    restart: unless-stopped
+    profiles:
+      - monitoring
+
+volumes:
+  grafana-storage:
+
+networks:
+  default:
+    driver: bridge

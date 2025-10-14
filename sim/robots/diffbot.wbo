@@ -1,0 +1,200 @@
+#VRML_SIM R2023b utf8
+PROTO DiffBot [
+  field SFVec3f    translation     0 0 0.05
+  field SFRotation rotation        0 0 1 0
+  field SFString   name            "diffbot"
+  field SFString   controller      "webots_ros2_driver"
+  field MFString   controllerArgs  []
+  field SFString   customData      ""
+  field SFBool     supervisor      FALSE
+  field SFBool     synchronization TRUE
+  field MFNode     extensionSlot   []
+]
+{
+  Robot {
+    translation IS translation
+    rotation IS rotation
+    children [
+      DEF DIFFBOT_SHAPE Group {
+        children [
+          Transform {
+            translation 0 0 0.02
+            children [
+              Shape {
+                appearance PBRAppearance {
+                  baseColor 0.2 0.2 0.8
+                  roughness 0.3
+                  metalness 0.8
+                }
+                geometry Cylinder {
+                  height 0.04
+                  radius 0.08
+                }
+              }
+            ]
+          }
+          Transform {
+            translation 0 0 0.06
+            children [
+              Shape {
+                appearance PBRAppearance {
+                  baseColor 0.8 0.2 0.2
+                  roughness 0.3
+                  metalness 0.8
+                }
+                geometry Cylinder {
+                  height 0.02
+                  radius 0.06
+                }
+              }
+            ]
+          }
+          Transform {
+            translation 0.06 0 0.06
+            rotation 0 1 0 1.5708
+            children [
+              Shape {
+                appearance PBRAppearance {
+                  baseColor 0.2 0.8 0.2
+                  roughness 0.3
+                  metalness 0.8
+                }
+                geometry Cylinder {
+                  height 0.12
+                  radius 0.01
+                }
+              }
+            ]
+          }
+        ]
+      }
+      HingeJoint {
+        jointParameters HingeJointParameters {
+          anchor 0.05 0.06 0
+          axis 0 1 0
+        }
+        device [
+          RotationalMotor {
+            name "left wheel motor"
+            maxVelocity 12.26
+          }
+          PositionSensor {
+            name "left wheel sensor"
+          }
+        ]
+        endPoint Solid {
+          translation 0.05 0.06 0
+          rotation 1 0 0 1.5708
+          children [
+            DEF WHEEL Shape {
+              appearance PBRAppearance {
+                baseColor 0.2 0.2 0.2
+                roughness 0.3
+                metalness 0.8
+              }
+              geometry Cylinder {
+                height 0.02
+                radius 0.025
+              }
+            }
+          ]
+          name "left wheel"
+          physics Physics {
+            density -1
+            mass 0.4
+          }
+        ]
+      }
+      HingeJoint {
+        jointParameters HingeJointParameters {
+          anchor 0.05 -0.06 0
+          axis 0 1 0
+        }
+        device [
+          RotationalMotor {
+            name "right wheel motor"
+            maxVelocity 12.26
+          }
+          PositionSensor {
+            name "right wheel sensor"
+          }
+        ]
+        endPoint Solid {
+          translation 0.05 -0.06 0
+          rotation 1 0 0 1.5708
+          children [
+            USE WHEEL
+          ]
+          name "right wheel"
+          physics Physics {
+            density -1
+            mass 0.4
+          }
+        ]
+      }
+      DEF DS_RIGHT DistanceSensor {
+        translation 0.1 -0.03 0.05
+        rotation 0 0 1 -1.5708
+        name "ds_right"
+        lookupTable [
+          0 1024 0
+          0.05 1024 0
+          0.1 0 0
+          1.0 0 0
+        ]
+        type "infra-red"
+      }
+      DEF DS_LEFT DistanceSensor {
+        translation 0.1 0.03 0.05
+        rotation 0 0 1 -1.5708
+        name "ds_left"
+        lookupTable [
+          0 1024 0
+          0.05 1024 0
+          0.1 0 0
+          1.0 0 0
+        ]
+        type "infra-red"
+      }
+      DEF CAMERA Camera {
+        translation 0.08 0 0.06
+        rotation 0 1 0 1.5708
+        name "camera"
+        width 320
+        height 240
+        fieldOfView 1.047
+      }
+      DEF LIDAR Lidar {
+        translation 0 0 0.08
+        rotation 0 0 1 0
+        name "lidar"
+        horizontalResolution 360
+        numberOfLayers 1
+        minRange 0.05
+        maxRange 12
+        fieldOfView 6.28318
+        verticalFieldOfView 0.0873
+        type "rotating"
+      }
+    ]
+    name IS name
+    physics Physics {
+      density -1
+      mass 1
+      centerOfMass [
+        0 0 0
+      ]
+      inertiaMatrix [
+        0.01 0.01 0.01
+        0 0 0
+      ]
+    }
+    controller IS controller
+    controllerArgs IS controllerArgs
+    customData IS customData
+    supervisor IS supervisor
+    synchronization IS synchronization
+    extensionSlot IS extensionSlot
+  }
+}
+
