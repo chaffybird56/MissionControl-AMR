@@ -1,6 +1,6 @@
-# ROS2 AMR "Showfloor" - Autonomous Mobile Robot System
+# ROS2 AMR - Autonomous Mobile Robot System
 
-> **Transform any space into an intelligent warehouse with this cutting-edge autonomous robot that navigates obstacles, executes missions, and delivers real-time insights through a stunning web dashboard.**
+> **autonomous robot that navigates obstacles, executes missions, and delivers real-time insights through a stunning web dashboard.**
 
 ## 🖼️ System Overview
 
