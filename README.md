@@ -37,7 +37,7 @@ A comprehensive, demo-ready ROS2 Autonomous Mobile Robot (AMR) system featuring 
 ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
 │   Webots Sim    │    │   ROS2 Stack    │    │   Dashboard     │
 │                 │    │                 │    │                 │
-│ • Diffbot Robot │◄──►│ • Nav2 Navigation│◄──►│ • Next.js UI    │
+│ • Diffbot Robot │◄──►│ • Nav2Navigation│◄──►│ • Next.js UI    │
 │ • Showfloor Map │    │ • Mission Mgmt  │    │ • Real-time     │
 │ • Sensors       │    │ • Perception    │    │ • Control Panel │
 │ • Physics       │    │ • Metrics       │    │ • Map View      │
