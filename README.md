@@ -1,6 +1,6 @@
 # ROS2 AMR - Autonomous Mobile Robot System
 
-> **autonomous robot that navigates obstacles, executes missions, and delivers real-time insights through a stunning web dashboard.**
+> **Autonomous robot that navigates obstacles, executes missions, and delivers real-time insights through a web dashboard.**
 
 ## 🖼️ System Overview
 
