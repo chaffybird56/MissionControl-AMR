@@ -1,0 +1,3 @@
+*.wbt linguist-language=VRML
+*.wbo linguist-language=VRML
+dashboard/* linguist-vendored=false
